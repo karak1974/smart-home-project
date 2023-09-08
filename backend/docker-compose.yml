@@ -1,0 +1,17 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      #MYSQL_DATABASE: smarthome
+    volumes:
+      # Run every sql script whats in this directory
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+
+  custom-app:
+    build: .
+    depends_on:
+      - mysql
+    ports:
+      - "4000:3000"
