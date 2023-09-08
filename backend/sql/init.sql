@@ -1,4 +1,4 @@
--- Database setup for the smarthome system
+-- Database setup for the smart-home system
 CREATE DATABASE smarthome CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE smarthome;

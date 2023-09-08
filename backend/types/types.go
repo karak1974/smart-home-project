@@ -1,4 +1,4 @@
-package main
+package types
 
 type EventLog struct {
 	Id     int    `json:"id"`
