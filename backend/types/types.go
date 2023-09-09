@@ -1,8 +1,8 @@
 package types
 
 type EventLog struct {
-	Id     int    `json:"id"`
-	Lamp   string `json:"state"`
-	Date   string `json:"date"`
+	Id     int    `json:",omitempty"`
+	Lamp   string `json:"lamp"`
+	Date   string `json:",omitempty"`
 	Status bool   `json:"status"`
 }

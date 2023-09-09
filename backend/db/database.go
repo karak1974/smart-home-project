@@ -12,21 +12,21 @@ func getDB() (*sql.DB, error) {
 	return sql.Open("mysql", vars.ConnectionString)
 }
 
-// addRecord adds a log record about state of a lamp
+// AddRecord adds a log record about state of a lamp
 // We don't give the ID due the database will create it
 func AddRecord(eventLog types.EventLog) error {
 	db, err := getDB()
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec("INSERT INTO event_logs (lamp, date, status) VALUES (? ,?, ?)",
+	_, err = db.Exec("INSERT INTO event_logs (lamp, date, status) VALUES (?, NOW(), ?)",
 		eventLog.Lamp,
 		eventLog.Date,
 		eventLog.Status)
 	return err
 }
 
-// getRecordById return a record where the provided ID appears
+// GetRecordById return a record where the provided ID appears
 func GetRecordById(recordId int) (types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
@@ -55,7 +55,7 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 	return res, nil
 }
 
-// getRecordByLamp return a record where the provided Lamp name
+// GetRecordByLamp return a record where the provided Lamp name
 func GetRecordByLamp(recordLamp string) ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
@@ -88,7 +88,7 @@ func GetRecordByLamp(recordLamp string) ([]types.EventLog, error) {
 	return res, nil
 }
 
-// getRecordByDate return events between specified dates
+// GetRecordByDate return events between specified dates
 func GetRecordByDate(startDate, endDate string) ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
@@ -121,7 +121,7 @@ func GetRecordByDate(startDate, endDate string) ([]types.EventLog, error) {
 	return res, nil
 }
 
-// getAll the latest state of every lamp
+// GetAll the latest state of every lamp
 func GetAll() ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {

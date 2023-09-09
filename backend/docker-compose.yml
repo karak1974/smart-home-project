@@ -6,12 +6,18 @@ services:
       MYSQL_ROOT_PASSWORD: supersecret
       #MYSQL_DATABASE: smarthome
     volumes:
-      # Run every sql script whats in this directory
+      # Run every sql script what's in this directory
       - ./sql-scripts:/docker-entrypoint-initdb.d
 
-  custom-app:
+  smart-hom:
     build: .
     depends_on:
       - mysql
+    restart: unless-stopped
+    environment:
+      - ROOT_PASSWORD=supersecret
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=supersecret
+      - MYSQL_DATABASE=smarthome
     ports:
-      - "4000:3000"
+      - "8088:8088"

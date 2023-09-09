@@ -1,12 +1,11 @@
 package main
 
 import (
+	"github.com/go-chi/chi"
 	"log/slog"
 	"net/http"
 	"smarthome/router"
 	"smarthome/vars"
-
-	"github.com/go-chi/chi"
 )
 
 func main() {
