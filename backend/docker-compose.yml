@@ -1,23 +1,31 @@
 version: '3'
 services:
-  mysql:
+  db:
     image: mysql:8.1.0
     environment:
       MYSQL_ROOT_PASSWORD: supersecret
       #MYSQL_DATABASE: smarthome
     volumes:
       # Run every sql script what's in this directory
-      - ./sql-scripts:/docker-entrypoint-initdb.d
+      - ./sql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:2206"
+    networks:
+      - bridge
 
-  smart-hom:
+  smart-home:
     build: .
     depends_on:
-      - mysql
+      - db
     restart: unless-stopped
     environment:
-      - ROOT_PASSWORD=supersecret
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=supersecret
-      - MYSQL_DATABASE=smarthome
+      DB_USER: root
+      DB_PASS: supersecret
+      DB_PORT: 3306
     ports:
       - "8088:8088"
+    networks:
+      - bridge
+
+networks:
+  bridge:

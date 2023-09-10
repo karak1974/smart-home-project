@@ -15,6 +15,5 @@ FROM scratch AS final
 WORKDIR /app
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /app/main /app
-COPY config.json /app
 EXPOSE 8088
 CMD [ "./main" ]
