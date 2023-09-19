@@ -178,6 +178,46 @@ func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 	return res, nil
 }
 
+// GetLastAmountByLamp returns last records for a specific lamps by given amount
+func GetLastAmountByLamp(reqLamp string, amount int) ([]types.EventLog, error) {
+	db, err := getDB()
+	defer db.Close()
+	if err != nil {
+		return []types.EventLog{}, err
+	}
+
+	stmt, err := db.Prepare("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT ?")
+	if err != nil {
+		return []types.EventLog{}, err
+	}
+	defer stmt.Close()
+
+	events, err := stmt.Query(reqLamp, amount)
+	if err != nil {
+		return []types.EventLog{}, err
+	}
+
+	var tmp types.EventLog
+	var res []types.EventLog
+
+	for events.Next() {
+		var id int
+		var lamp, date string
+		var status bool
+		err = events.Scan(&id, &lamp, &date, &status)
+		if err != nil {
+			return []types.EventLog{}, err
+		}
+		tmp.Id = id
+		tmp.Lamp = lamp
+		tmp.Date = date
+		tmp.Status = status
+		res = append(res, tmp)
+	}
+
+	return res, nil
+}
+
 func HealthCheck() error {
 	db, err := getDB()
 	if err != nil {

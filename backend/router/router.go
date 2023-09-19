@@ -161,6 +161,39 @@ func GetLastAmountHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetLastAmountByLampHandler handler for /getLast/<LAMP>/<AMOUNT> GET requests
+func GetLastAmountByLampHandler(w http.ResponseWriter, r *http.Request) {
+	lamp := chi.URLParam(r, "lamp")
+	urlAmount := chi.URLParam(r, "amount")
+	slog.Info("Got GetLastAmountByLamp GET request",
+		slog.String("amount", urlAmount))
+
+	amount, err := strconv.Atoi(urlAmount)
+	if err != nil {
+		slog.Error("Error parsing request",
+			slog.Any("error", err),
+			slog.String("amount", urlAmount))
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	record, err := db.GetLastAmountByLamp(lamp, amount)
+	if err != nil {
+		slog.Error("Error getting record from the database",
+			slog.Any("error", err))
+		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
+	}
+
+	resp, err := json.Marshal(record)
+	if err != nil {
+		slog.Error("Error marshalling response")
+	}
+
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Could not serve request for GetLast")
+	}
+}
+
 // HealthCheckHandler handler for /hc GET requests
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("HealthCheck")

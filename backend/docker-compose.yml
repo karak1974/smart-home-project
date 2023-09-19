@@ -2,11 +2,9 @@ version: '3'
 services:
   db:
     image: mysql:8.1.0
-    # TODO add timezone
     environment:
       TZ: Europe/Budapest
       MYSQL_ROOT_PASSWORD: supersecret
-      #MYSQL_DATABASE: smarthome
     volumes:
       # Run every sql script what's in this directory
       - ./sql:/docker-entrypoint-initdb.d
@@ -24,6 +22,7 @@ services:
       DB_USER: root
       DB_PASS: supersecret
       DB_PORT: 3306
+      DB_HOST: db
     ports:
       - "8088:8088"
     networks:

@@ -9,8 +9,7 @@ var (
 	ConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASS"),
-		"db", // Docker compose will resolve this
-		//os.Getenv("DB_HOST"),
+		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 		"smarthome")
 )

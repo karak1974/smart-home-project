@@ -1,10 +1,11 @@
 # Developer documentation
 
 ## Setup
-The backend have only one dependency which is [Docker](https://www.docker.com/).
-To start it `docker compose up`
-To start it as a daemon `docker compose up -d`
 
+### Backend  
+The backend have only one dependency which is [Docker](https://www.docker.com/).  
+To start it `docker compose up`  
+To start it as a daemon `docker compose up -d`  
 
 ## API documentation
 ### Add record
@@ -31,5 +32,10 @@ Response body:
 
 ### Get last X amount record
 GET `/getLast/<amount>`  
+Response body:  
+`[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
+
+### Geg last X amount record by lamp
+GET `/getLast/<lamp>/<amount>`  
 Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`

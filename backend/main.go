@@ -34,10 +34,10 @@ func main() {
 	r := chi.NewRouter()
 	r.Post("/addRecord", router.AddRecordHandler)
 	r.Get("/getRecordById/{id}", router.GetRecordByIdHandler)
-	//r.Get("/getLastAmountByLamp/{lamp}/{amount}", router.GetLastByLampAmountHandler)
 	r.Get("/getLastByLamp/{lamp}", router.GetLastByLampHandler)
 	r.Get("/getLast", router.GetLastHandler)
 	r.Get("/getLast/{amount}", router.GetLastAmountHandler)
+	r.Get("/getLast/{lamp}/{amount}", router.GetLastAmountByLampHandler)
 	r.Get("/hc", router.HealthCheckHandler)
 
 	// Run server
