@@ -78,15 +78,14 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 	return res, nil
 }
 
-// GetRecordsByLamp return a record where the provided Lamp name
-func GetRecordsByLamp(recordLamp string) ([]types.EventLog, error) {
-	// TODO add limit
+// GetRecordByLamp return a record where the provided Lamp name
+func GetRecordByLamp(recordLamp string) ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
 		return []types.EventLog{}, err
 	}
 
-	events, err := db.Query("SELECT * FROM event_logs WHERE lamp=?", recordLamp)
+	events, err := db.Query("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT 1", recordLamp)
 	if err != nil {
 		return []types.EventLog{}, err
 	}

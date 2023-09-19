@@ -2,7 +2,9 @@ version: '3'
 services:
   db:
     image: mysql:8.1.0
+    # TODO add timezone
     environment:
+      TZ: Europe/Budapest
       MYSQL_ROOT_PASSWORD: supersecret
       #MYSQL_DATABASE: smarthome
     volumes:

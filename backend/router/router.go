@@ -66,7 +66,7 @@ func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error getting record from the database",
 			slog.String("error", err.Error()),
 			slog.Int("record_id", id))
-		http.Error(w, "Error adding record to the database", http.StatusInternalServerError)
+		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
 
 	resp, err := json.Marshal(record)
@@ -77,11 +77,25 @@ func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-func GetRecordsByLampHandler(w http.ResponseWriter, r *http.Request) {
+func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
 	slog.Info("Got GetRecordByLamp request",
 		slog.String("lamp", lamp))
-	w.Write([]byte("OK"))
+
+	record, err := db.GetRecordByLamp(lamp)
+	if err != nil {
+		slog.Error("Error getting record from the database",
+			slog.String("error", err.Error()),
+			slog.String("lamp", lamp))
+		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
+	}
+
+	resp, err := json.Marshal(record)
+	if err != nil {
+		slog.Error("Error marshalling response")
+	}
+
+	w.Write(resp)
 }
 
 func GetRecordsByDateHandler(w http.ResponseWriter, r *http.Request) {

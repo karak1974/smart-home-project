@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/go-chi/chi"
 	"log/slog"
 	"net/http"
 	"os"
 	"smarthome/router"
 	"smarthome/vars"
+
+	"github.com/go-chi/chi"
 )
 
 func main() {
@@ -17,9 +18,11 @@ func main() {
 	// Define your handler functions
 	r.Post("/addRecord", router.AddRecordHandler)
 	r.Get("/getRecordById/{id}", router.GetRecordByIdHandler)
-	r.Get("/getRecordByLamp/{lamp}", router.GetRecordsByLampHandler)
+	r.Get("/getRecordByLamp/{lamp}", router.GetRecordByLampHandler)
 	r.Get("/getRecordByDate/{start}/{end}", router.GetRecordsByDateHandler)
 	r.Get("/getAll", router.GetAllHandler)
+	//r.Get("/getLast", router.GetLastHandler)
+	//r.Get("/getLast/{amount}", router.GetLastAmountHandler)
 	r.Get("/hc", router.HealthCheckHandler)
 
 	slog.Info("API starting",
