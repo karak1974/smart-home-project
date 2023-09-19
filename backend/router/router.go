@@ -84,13 +84,13 @@ func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetRecordByLampHandler handler for /getRecordByLamp/<LAMP> GET requests
-func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
+// GetLastByLampHandler handler for /getLastByLamp/<LAMP> GET requests
+func GetLastByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
-	slog.Info("Got GetRecordByLamp GET request",
+	slog.Info("Got GetLastByLamp GET request",
 		slog.String("lamp", lamp))
 
-	record, err := db.GetRecordByLamp(lamp)
+	record, err := db.GetLastByLamp(lamp)
 	if err != nil {
 		slog.Error("Error getting record from the database",
 			slog.Any("error", err),
@@ -104,7 +104,7 @@ func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err = w.Write(resp); err != nil {
-		slog.Error("Could not serve request for GetRecordByLamp")
+		slog.Error("Could not serve request for GetLastByLamp")
 	}
 }
 

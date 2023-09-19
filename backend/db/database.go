@@ -18,6 +18,7 @@ func getDB() (*sql.DB, error) {
 // We don't give the ID due the database will create it
 func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
 	db, err := getDB()
+	defer db.Close()
 	if err != nil {
 		return types.EventLog{}, err
 	}
@@ -50,6 +51,7 @@ func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
 // GetRecordById return a record where the provided ID appears
 func GetRecordById(recordId int) (types.EventLog, error) {
 	db, err := getDB()
+	defer db.Close()
 	if err != nil {
 		return types.EventLog{}, err
 	}
@@ -72,9 +74,10 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 	return res, nil
 }
 
-// GetRecordByLamp return a record with the provided lamp's name
-func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
+// GetLastByLamp return a record with the provided lamp's name
+func GetLastByLamp(recordLamp string) (types.EventLog, error) {
 	db, err := getDB()
+	defer db.Close()
 	if err != nil {
 		return types.EventLog{}, err
 	}
@@ -106,6 +109,7 @@ func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
 // GetLastRecord return the last record
 func GetLastRecord() (types.EventLog, error) {
 	db, err := getDB()
+	defer db.Close()
 	if err != nil {
 		return types.EventLog{}, err
 	}
@@ -137,6 +141,7 @@ func GetLastRecord() (types.EventLog, error) {
 // GetLastAmountRecord returns last records by given amount
 func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 	db, err := getDB()
+	defer db.Close()
 	if err != nil {
 		return []types.EventLog{}, err
 	}
@@ -174,9 +179,14 @@ func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 }
 
 func HealthCheck() error {
-	_, err := getDB()
+	db, err := getDB()
 	if err != nil {
 		return err
 	}
-	return err
+
+	if err = db.Ping(); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,5 +1,10 @@
 # Developer documentation
-User documentation will be in the user_documentation.md after the project is done.
+
+## Setup
+The backend have only one dependency which is [Docker](https://www.docker.com/).
+To start it `docker compose up`
+To start it as a daemon `docker compose up -d`
+
 
 ## API documentation
 ### Add record
@@ -14,8 +19,8 @@ GET `/getRecordById/<ID>`
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
-### Get record by lamp
-GET `/getRecordByLamp/<lamp>`  
+### Get last record by lamp
+GET `/getLastByLamp/<lamp>`  
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
