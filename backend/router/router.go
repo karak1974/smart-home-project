@@ -104,20 +104,6 @@ func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetRecordsByDateHandler(w http.ResponseWriter, r *http.Request) {
-	start := chi.URLParam(r, "start")
-	end := chi.URLParam(r, "end")
-	slog.Info("Got GetRecordByDate request",
-		slog.String("start", start),
-		slog.String("end", end))
-	_, _ = w.Write([]byte("OK"))
-}
-
-func GetAllHandler(w http.ResponseWriter, r *http.Request) {
-	slog.Info("Got GetAll request")
-	_, _ = w.Write([]byte("OK"))
-}
-
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("HealthCheck")
 	// TODO add database connection check

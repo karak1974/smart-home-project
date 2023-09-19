@@ -1,18 +1,21 @@
 # Smart Home Project
 
-## API documentation
-POST `/addRecord`
-Request body:
-`{"lamp":"<lamp_name>", "status":<bool>}`
-Response body:
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
+# Developer documentation only
+User documentation will be in the user_documentation.md after the project is done.
 
-GET `/getRecordById/<ID>`
-Response body:
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
+## API documentation  
+POST `/addRecord`  
+Request body:  
+`{"lamp":"<lamp_name>", "status":<bool>}`  
+Response body:  
+`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`  
 
-GET `/getRecordByLamp/<lamp>`
-Response body:
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
+GET `/getRecordById/<ID>`  
+Response body:  
+`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`  
+
+GET `/getRecordByLamp/<lamp>`  
+Response body:  
+`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`  
 
 

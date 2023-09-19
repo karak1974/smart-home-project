@@ -19,8 +19,6 @@ func main() {
 	r.Post("/addRecord", router.AddRecordHandler)
 	r.Get("/getRecordById/{id}", router.GetRecordByIdHandler)
 	r.Get("/getRecordByLamp/{lamp}", router.GetRecordByLampHandler)
-	r.Get("/getRecordByDate/{start}/{end}", router.GetRecordsByDateHandler)
-	r.Get("/getAll", router.GetAllHandler)
 	//r.Get("/getLast", router.GetLastHandler)
 	//r.Get("/getLast/{amount}", router.GetLastAmountHandler)
 	r.Get("/hc", router.HealthCheckHandler)
