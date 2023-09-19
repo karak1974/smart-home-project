@@ -15,6 +15,10 @@ var (
 		"smarthome")
 )
 
-// var Port = os.Getenv("SH_PORT")
-
-var Port = "8088"
+func GetPort() string {
+	var port = os.Getenv("SH_PORT")
+	if port == "" {
+		port = "8088"
+	}
+	return port
+}

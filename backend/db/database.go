@@ -2,12 +2,14 @@ package db
 
 import (
 	"database/sql"
+
 	"smarthome/types"
 	"smarthome/vars"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// getDB returns a database handler
 func getDB() (*sql.DB, error) {
 	return sql.Open("mysql", vars.ConnectionString)
 }
@@ -70,7 +72,7 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 	return res, nil
 }
 
-// GetRecordByLamp return a record where the provided Lamp name
+// GetRecordByLamp return a record with the provided lamp's name
 func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
@@ -101,7 +103,7 @@ func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
 	return res, nil
 }
 
-// GetlastRecord return a record
+// GetLastRecord return the last record
 func GetLastRecord() (types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
@@ -132,7 +134,7 @@ func GetLastRecord() (types.EventLog, error) {
 	return res, nil
 }
 
-// GetLastAmountRecord returns records by given amount
+// GetLastAmountRecord returns last records by given amount
 func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
@@ -169,4 +171,12 @@ func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 	}
 
 	return res, nil
+}
+
+func HealthCheck() error {
+	_, err := getDB()
+	if err != nil {
+		return err
+	}
+	return err
 }
