@@ -52,7 +52,7 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 	urlId := chi.URLParam(r, "id")
-	slog.Info("Got GetRecordById request",
+	slog.Info("Got GetRecordById GET request",
 		slog.String("id", urlId))
 
 	id, err := strconv.Atoi(urlId)
@@ -83,7 +83,7 @@ func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
-	slog.Info("Got GetRecordByLamp request",
+	slog.Info("Got GetRecordByLamp GET request",
 		slog.String("lamp", lamp))
 
 	record, err := db.GetRecordByLamp(lamp)
@@ -101,6 +101,57 @@ func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
 
 	if _, err = w.Write(resp); err != nil {
 		slog.Error("Cound not serve request for GetRecordByLamp")
+	}
+}
+
+func GetLastHandler(w http.ResponseWriter, r *http.Request) {
+	slog.Info("Got GetLast request")
+
+	record, err := db.GetLastRecord()
+	if err != nil {
+		slog.Error("Error getting record from the database",
+			slog.String("error", err.Error()))
+		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
+	}
+
+	resp, err := json.Marshal(record)
+	if err != nil {
+		slog.Error("Error marshalling response")
+	}
+
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Cound not serve request for GetLast")
+	}
+}
+
+func GetLastAmountHandler(w http.ResponseWriter, r *http.Request) {
+	urlAmount := chi.URLParam(r, "amount")
+	slog.Info("Got GetLastAmount GET request",
+		slog.String("amount", urlAmount))
+
+	amount, err := strconv.Atoi(urlAmount)
+	if err != nil {
+		slog.Error("Error parsing request",
+			slog.String("error", err.Error()),
+			slog.String("amount", urlAmount))
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+
+	record, err := db.GetLastAmountRecord(amount)
+	if err != nil {
+		slog.Error("Error getting record from the database",
+			slog.String("error", err.Error()))
+		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
+	}
+
+	resp, err := json.Marshal(record)
+	if err != nil {
+		slog.Error("Error marshalling response")
+	}
+
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Cound not serve request for GetLast")
 	}
 }
 

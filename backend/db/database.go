@@ -65,7 +65,7 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 	var lamp, date string
 	var status bool
 
-	events := db.QueryRow("SELECT * FROM event_logs WHERE id=? ORDER BY id DESC", recordId)
+	events := db.QueryRow("SELECT * FROM event_logs WHERE id=? ORDER BY id DESC LIMIT 1", recordId)
 	if err = events.Scan(&id, &lamp, &date, &status); err != nil {
 		return types.EventLog{}, err
 	}
@@ -79,13 +79,87 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 }
 
 // GetRecordByLamp return a record where the provided Lamp name
-func GetRecordByLamp(recordLamp string) ([]types.EventLog, error) {
+func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
+	db, err := getDB()
+	if err != nil {
+		return types.EventLog{}, err
+	}
+
+	events, err := db.Query("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT 1", recordLamp)
+	if err != nil {
+		return types.EventLog{}, err
+	}
+
+	var tmp types.EventLog
+	var res types.EventLog
+
+	// TODO remove for loop
+	for events.Next() {
+		var id int
+		var lamp, date string
+		var status bool
+		err = events.Scan(&id, &lamp, &date, &status)
+		if err != nil {
+			return types.EventLog{}, err
+		}
+		tmp.Id = id
+		tmp.Lamp = lamp
+		tmp.Date = date
+		tmp.Status = status
+		res = tmp
+	}
+
+	return res, nil
+}
+
+// GetlastRecord return a record
+func GetLastRecord() (types.EventLog, error) {
+	db, err := getDB()
+	if err != nil {
+		return types.EventLog{}, err
+	}
+
+	events, err := db.Query("SELECT * FROM event_logs ORDER BY date DESC LIMIT 1")
+
+	if err != nil {
+		return types.EventLog{}, err
+	}
+
+	var tmp types.EventLog
+	var res types.EventLog
+
+	// TODO remove for loop
+	for events.Next() {
+		var id int
+		var lamp, date string
+		var status bool
+		err = events.Scan(&id, &lamp, &date, &status)
+		if err != nil {
+			return types.EventLog{}, err
+		}
+		tmp.Id = id
+		tmp.Lamp = lamp
+		tmp.Date = date
+		tmp.Status = status
+		res = tmp
+	}
+
+	return res, nil
+}
+
+func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
 		return []types.EventLog{}, err
 	}
 
-	events, err := db.Query("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT 1", recordLamp)
+	stmt, err := db.Prepare("SELECT * FROM event_logs ORDER BY date DESC LIMIT ?")
+	if err != nil {
+		return []types.EventLog{}, err
+	}
+	defer stmt.Close()
+
+	events, err := stmt.Query(amount)
 	if err != nil {
 		return []types.EventLog{}, err
 	}
