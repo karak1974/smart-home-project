@@ -18,12 +18,12 @@ GET `/getRecordByLamp/<lamp>`
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`  
 
-GET `/getLast`
-Response body:
+GET `/getLast`  
+Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`  
 
-GET `/getLast/<amount>`
-Response body:
+GET `/getLast/<amount>`  
+Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`  
 > This is an array, this means it will return an object array instead of a single object
 
