@@ -3,7 +3,6 @@ package main
 import (
 	"log/slog"
 	"net/http"
-	"os"
 	"smarthome/router"
 	"smarthome/vars"
 
@@ -25,10 +24,6 @@ func main() {
 
 	slog.Info("API starting",
 		slog.String("port", vars.Port))
-	slog.Info("DEBUG",
-		slog.String("DB_USER", os.Getenv("DB_USER")),
-		slog.String("DB_PASS", os.Getenv("DB_PASS")),
-		slog.String("DB_PORT", os.Getenv("DB_PORT")))
 
 	if err := http.ListenAndServe(":"+vars.Port, r); err != nil {
 		slog.Error("Cound not serve HTTP API",

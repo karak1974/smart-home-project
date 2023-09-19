@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"log/slog"
 	"smarthome/types"
 	"smarthome/vars"
 
@@ -21,11 +20,6 @@ func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
 		return types.EventLog{}, err
 	}
 
-	slog.Info("DEBUG",
-		slog.String("lamp", eventLog.Lamp),
-		slog.Any("date", eventLog.Date),
-		slog.Bool("status", eventLog.Status))
-	// Save the record in the database
 	_, err = db.Exec("INSERT INTO event_logs (lamp, date, status) VALUES (?, NOW(), ?)",
 		eventLog.Lamp,
 		eventLog.Status)
@@ -38,8 +32,6 @@ func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
 	var lamp, date string
 	var status bool
 
-	// Get the record from the database
-	// This part is necessary due the database generate some values
 	events := db.QueryRow("SELECT * FROM event_logs WHERE lamp=? ORDER BY id DESC", eventLog.Lamp)
 	if err = events.Scan(&id, &lamp, &date, &status); err != nil {
 		return types.EventLog{}, err
@@ -90,11 +82,9 @@ func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
 		return types.EventLog{}, err
 	}
 
-	var tmp types.EventLog
 	var res types.EventLog
 
-	// TODO remove for loop
-	for events.Next() {
+	if events.Next() {
 		var id int
 		var lamp, date string
 		var status bool
@@ -102,11 +92,10 @@ func GetRecordByLamp(recordLamp string) (types.EventLog, error) {
 		if err != nil {
 			return types.EventLog{}, err
 		}
-		tmp.Id = id
-		tmp.Lamp = lamp
-		tmp.Date = date
-		tmp.Status = status
-		res = tmp
+		res.Id = id
+		res.Lamp = lamp
+		res.Date = date
+		res.Status = status
 	}
 
 	return res, nil
@@ -120,16 +109,13 @@ func GetLastRecord() (types.EventLog, error) {
 	}
 
 	events, err := db.Query("SELECT * FROM event_logs ORDER BY date DESC LIMIT 1")
-
 	if err != nil {
 		return types.EventLog{}, err
 	}
 
-	var tmp types.EventLog
 	var res types.EventLog
 
-	// TODO remove for loop
-	for events.Next() {
+	if events.Next() {
 		var id int
 		var lamp, date string
 		var status bool
@@ -137,16 +123,16 @@ func GetLastRecord() (types.EventLog, error) {
 		if err != nil {
 			return types.EventLog{}, err
 		}
-		tmp.Id = id
-		tmp.Lamp = lamp
-		tmp.Date = date
-		tmp.Status = status
-		res = tmp
+		res.Id = id
+		res.Lamp = lamp
+		res.Date = date
+		res.Status = status
 	}
 
 	return res, nil
 }
 
+// GetLastAmountRecord returns records by given amount
 func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 	db, err := getDB()
 	if err != nil {
