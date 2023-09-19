@@ -31,5 +31,9 @@ func main() {
 		slog.String("DB_USER", os.Getenv("DB_USER")),
 		slog.String("DB_PASS", os.Getenv("DB_PASS")),
 		slog.String("DB_PORT", os.Getenv("DB_PORT")))
-	http.ListenAndServe(":"+vars.Port, r)
+
+	if err := http.ListenAndServe(":"+vars.Port, r); err != nil {
+		slog.Error("Cound not serve HTTP API",
+			slog.String("port", vars.Port))
+	}
 }

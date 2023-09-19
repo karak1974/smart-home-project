@@ -45,7 +45,9 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error marshalling response")
 	}
 
-	w.Write(resp)
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Cound not serve request for AddRecord")
+	}
 }
 
 func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +76,9 @@ func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error marshalling response")
 	}
 
-	w.Write(resp)
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Cound not serve request for GetRecordById")
+	}
 }
 
 func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +99,9 @@ func GetRecordByLampHandler(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error marshalling response")
 	}
 
-	w.Write(resp)
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Cound not serve request for GetRecordByLamp")
+	}
 }
 
 func GetRecordsByDateHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,16 +110,16 @@ func GetRecordsByDateHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Got GetRecordByDate request",
 		slog.String("start", start),
 		slog.String("end", end))
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
 
 func GetAllHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Got GetAll request")
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("HealthCheck")
 	// TODO add database connection check
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK"))
 }
