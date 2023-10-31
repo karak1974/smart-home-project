@@ -38,6 +38,7 @@ func main() {
 	r.Get("/getLast", router.GetLastHandler)
 	r.Get("/getLast/{amount}", router.GetLastAmountHandler)
 	r.Get("/getLast/{lamp}/{amount}", router.GetLastAmountByLampHandler)
+	r.Get("/getLamps", router.GetLamps)
 	r.Get("/hc", router.HealthCheckHandler)
 
 	// Run server

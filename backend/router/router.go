@@ -110,7 +110,7 @@ func GetLastByLampHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetLastHandler handler for /getLast GET requests
 func GetLastHandler(w http.ResponseWriter, r *http.Request) {
-	slog.Info("Got GetLast request")
+	slog.Info("Got GetLast GET request")
 
 	record, err := db.GetLastRecord()
 	if err != nil {
@@ -194,9 +194,31 @@ func GetLastAmountByLampHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetLamps(w http.ResponseWriter, r *http.Request) {
+	slog.Info("Got GetLamps request")
+
+	lamps, err := db.GetDistinctLamp()
+	if err != nil {
+		slog.Error("Error getting distinct lamps",
+			slog.Any("error", err))
+		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
+	}
+	var resp = []byte{}
+	resp, err = json.Marshal(lamps)
+	if err != nil {
+		slog.Error("Error marshalling response")
+	}
+
+	slog.Info("LAMPS", slog.String("response", string(resp)))
+
+	if _, err = w.Write(resp); err != nil {
+		slog.Error("Could not serve request for GetLamps")
+	}
+}
+
 // HealthCheckHandler handler for /hc GET requests
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	slog.Info("HealthCheck")
+	slog.Info("Got HealthCheck GET request")
 
 	var resp = "OK"
 	if err := db.HealthCheck(); err != nil {

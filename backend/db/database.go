@@ -218,6 +218,32 @@ func GetLastAmountByLamp(reqLamp string, amount int) ([]types.EventLog, error) {
 	return res, nil
 }
 
+func GetDistinctLamp() ([]string, error) {
+	db, err := getDB()
+	if err != nil {
+		return []string{}, err
+	}
+	defer db.Close()
+
+	var res []string
+	lampArray, err := db.Query("SELECT DISTINCT lamp FROM event_logs;")
+	if err != nil {
+		return []string{}, err
+	}
+	defer lampArray.Close()
+
+	for lampArray.Next() {
+		var lamp string
+		err = lampArray.Scan(&lamp)
+		if err != nil {
+			return []string{}, err
+		}
+		res = append(res, lamp)
+	}
+
+	return res, nil
+}
+
 func HealthCheck() error {
 	db, err := getDB()
 	if err != nil {

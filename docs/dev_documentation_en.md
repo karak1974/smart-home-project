@@ -35,15 +35,19 @@ GET `/getLast/<amount>`
 Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
 
-### Geg last X amount record by lamp
+### Get last X amount record by lamp
 GET `/getLast/<lamp>/<amount>`  
 Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
 
+### Get lamps
+GET `/getLamps`
+`null` or `["lamp0", "lamp1", ...]` 
+
 ### HealthCheck
 GET `/hc`
 Response body:
-`OK`
+`OK` or `NOT_OK`
 
 ## Stupid notes
 At the start there's no lamp in the frontend only an add new lamp button
