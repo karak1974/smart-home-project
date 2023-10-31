@@ -6,15 +6,15 @@ services:
       TZ: Europe/Budapest
       MYSQL_ROOT_PASSWORD: supersecret
     volumes:
-      # Run every sql script what's in this directory
-      - ./sql:/docker-entrypoint-initdb.d
+      - ./db/sql:/docker-entrypoint-initdb.d # Run every sql script what's in this directory
+      - ./db/data:/var/lib/mysql/ # Mount data to the host to don't lose DB at restart
     ports:
       - "3306:2206"
     networks:
       - bridge
 
   smart-home:
-    build: .
+    build: ./backend/
     depends_on:
       - db
     restart: unless-stopped

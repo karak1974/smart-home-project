@@ -3,6 +3,7 @@ package vars
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 var (
@@ -20,4 +21,12 @@ func GetPort() string {
 		port = "8088"
 	}
 	return port
+}
+
+func GetMaxTry() int {
+	var mt, err = strconv.Atoi(os.Getenv("MAX_TRY"))
+	if err != nil || mt == 0 {
+		mt = 20
+	}
+	return mt
 }

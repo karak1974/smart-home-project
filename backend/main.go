@@ -16,7 +16,7 @@ import (
 func main() {
 	// Wait for MySQL to start
 	slog.Info("Starting Smarthome API")
-	for i := 0; i < 20; i++ {
+	for i := 0; i < vars.GetMaxTry(); i++ {
 		slog.Info("Trying reaching the database",
 			slog.Int("attempt", i+1))
 		time.Sleep(5 * time.Second)
@@ -24,7 +24,7 @@ func main() {
 			break
 		}
 
-		if i == 19 {
+		if i == vars.GetMaxTry()-1 {
 			slog.Error("Could not connect to the database, exiting...")
 			os.Exit(1)
 		}

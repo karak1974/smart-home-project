@@ -203,7 +203,7 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		resp = "NOT_OK"
 		slog.Error("Could not connect to the database")
 	}
-	if _, err := w.Write([]byte(resp)); err != nil {
+	if _, err := w.Write([]byte(resp + "\n")); err != nil {
 		slog.Error("Could not serve request for HealthCheck",
 			slog.Any("error", err))
 	}

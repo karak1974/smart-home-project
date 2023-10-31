@@ -39,3 +39,31 @@ Response body:
 GET `/getLast/<lamp>/<amount>`  
 Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
+
+### HealthCheck
+GET `/hc`
+Response body:
+`OK`
+
+## Stupid notes
+At the start there's no lamp in the frontend only an add new lamp button
+'add new' will be always
+if you add a new lamp it's name will be stored in an array(also store array in the db)
+
+
+when we start the app the js ask the backend what lamps do we have
+backend return the array
+frontend ask for these lamps state
+
+a lamp card be like
+```
+/----------\
+|   name   |
+|----------|
+|   state  |
+|----------|
+|  up/down |
+\----------/
+```
+up / down depends on the state (!state)
+
