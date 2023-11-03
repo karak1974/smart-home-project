@@ -15,30 +15,10 @@ Request body:
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
-### Get record by ID
-GET `/api/getRecordById/<ID>`  
-Response body:  
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
-
 ### Get last record by lamp
 GET `/api/getLastByLamp/<lamp>`  
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
-
-### Get last record
-GET `/api/getLast`  
-Response body:  
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
-
-### Get last X amount record
-GET `/api/getLast/<amount>`  
-Response body:  
-`[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
-
-### Get last X amount record by lamp
-GET `/api/getLast/<lamp>/<amount>`  
-Response body:  
-`[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
 
 ### Get lamps
 GET `/api/getLamps`

@@ -53,11 +53,7 @@ func main() {
 	r.Use(c.Handler)
 	// Backend
 	r.Post("/api/addRecord", router.AddRecordHandler)
-	r.Get("/api/getRecordById/{id}", router.GetRecordByIdHandler)
 	r.Get("/api/getLastByLamp/{lamp}", router.GetLastByLampHandler)
-	r.Get("/api/getLast", router.GetLastHandler)
-	r.Get("/api/getLast/{amount}", router.GetLastAmountHandler)
-	r.Get("/api/getLast/{lamp}/{amount}", router.GetLastAmountByLampHandler)
 	r.Get("/api/getLamps", router.GetLamps)
 	r.Get("/api/hc", router.HealthCheckHandler)
 	// Frontend
