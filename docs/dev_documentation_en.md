@@ -11,18 +11,18 @@ To start it as a daemon `docker compose up -d`
 ### Add record
 POST `/api/addRecord`  
 Request body:  
-`{"lamp":"<lamp_name>", "status":<bool>}`  
+`{"lamp":"<lamp_name>", "state":<bool>}`  
 Response body:  
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
+`{"lamp":"<lamp>", "date":"<date>", "state":<bool>}`
 
 ### Get last record by lamp
 GET `/api/getLastByLamp/<lamp>`  
 Response body:  
-`{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
+`{"lamp":"<lamp>", "date":"<date>", "state":<bool>}`
 
 ### Get lamps
 GET `/api/getLamps`
-`null` or `["lamp0", "lamp1", ...]` 
+`null` or `[ { "lamp0": "<state>" }, { "lamp1": "<state>"}, ...]`
 
 ### HealthCheck
 GET `/api/hc`
