@@ -41,16 +41,16 @@ func main() {
 
 	// Setup server
 	r := chi.NewRouter()
-	cors := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		MaxAge:           300,
 	})
-	r.Use(cors.Handler)
+	r.Use(c.Handler)
 	// Backend
 	r.Post("/api/addRecord", router.AddRecordHandler)
 	r.Get("/api/getRecordById/{id}", router.GetRecordByIdHandler)

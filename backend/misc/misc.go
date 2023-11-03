@@ -29,9 +29,8 @@ func SetupLamps() error {
 	rooms := os.Getenv("ROOMS")
 	lamps := strings.Fields(rooms)
 
-	var err error = nil
+	slog.Info("Adding lamps to the database", slog.Any("lamps", lamps))
 	for _, lamp := range lamps {
-		slog.Info("Adding lamp to the database", slog.String("lamp", lamp))
 		l := types.Lamp{
 			Lamp:   lamp,
 			Status: false,
@@ -39,10 +38,10 @@ func SetupLamps() error {
 		if _, dbErr := db.AddRecord(l); dbErr != nil {
 			slog.Error("Error adding lamp to the database", slog.Any("error", dbErr),
 				slog.String("lamp", lamp))
-			err = dbErr
+			return dbErr
 		}
 	}
-	return err
+	return nil
 }
 
 // GetLamps return the array of lamps

@@ -11,7 +11,10 @@ import (
 
 // getDB returns a database handler
 func getDB() (*sql.DB, error) {
-	return sql.Open("mysql", vars.ConnectionString)
+	db, err := sql.Open("mysql", vars.ConnectionString)
+	db.SetMaxOpenConns(50)
+	db.SetMaxIdleConns(1000)
+	return db, err
 }
 
 // AddRecord adds a log record about status2 of a lamp
@@ -249,6 +252,7 @@ func HealthCheck() error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	if err = db.Ping(); err != nil {
 		return err

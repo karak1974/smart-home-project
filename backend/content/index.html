@@ -9,6 +9,13 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 300px;
+        }
+
         .switch {
             position: relative;
             display: inline-block;
@@ -60,107 +67,181 @@
             transform: translateX(26px);
         }
 
-        /* Rounded sliders */
-        .slider.round {
-            border-radius: 34px;
+        #cardContainer {
+            border-top: 1px lightgray solid;
+            border-bottom: 1px lightgray solid;
         }
 
-        .slider.round:before {
-            border-radius: 50%;
-        }
     </style>
 </head>
 <body onload="init()">
 
+<h2>Smart home lamps</h2>
 <div id="cardContainer">
-    <h2>Smart home lamps</h2>
-
-    <button onclick="addCard()">DEBUG Add lamp</button>
 </div>
 
 <script>
     function init() {
         console.log("Getting lamps form backend")
 
-        const url = "https://localhost:8088/api/getLamps";
-        // TODO later add some blackmagic to make it prettier
+        let result;
+        getlamps()
+            .then(data => {
+                if (data !== null) {
+                    result = data;
+                    const rooms = JSON.parse(result);
+                    console.log("LAMPS", result);
+                    for (let i = 0; i < rooms.length; i++) {
+                        addLamp(i, rooms[i]);
+                        getlampState(rooms[i])
+                            .then(
+                                d => {
+                                    let s = JSON.parse(d)
+                                    console.log("A name:", rooms[i], "state:", s.status);
+                                    if ( b === true ) {
+                                        console.log("Lamp is on:", rooms[i]);
+                                    }
+                                }
+                            )
+                    }
+                }
+            });
 
-        var resp = httpReq("GET", url)
-        fetch(resp)
+    }
+    function getlamps() {
+        const url = 'http://backend:8088/api/getLamps';
+
+        return fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                console.log(response.text()); // You can use response.json() for JSON data
+                return response.text();
             })
             .then(data => {
-                document.getElementById("response").textContent = data;
+                return data;
             })
             .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("response").textContent = "Error occurred. Check the browser console for details.";
+                console.error(`Error making the GET request: ${error.message}`);
+                return null;
             });
-
     }
-    function httpReq(method, url)
-    {
-        var xhr = new XMLHttpRequest();
+    function getlampState(name) {
+        const url = 'http://backend:8088/api/getLastByLamp/' + name;
 
-        xhr.open(method, url, true);
-
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                var responseData = xhr.responseText;
-                console.log(responseData);
-            } else {
-                console.error('Request failed with status code: ' + xhr.status);
-            }
-        };
-
-        xhr.onerror = function () {
-            console.error('Network error');
-        };
-        xhr.send();
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.error(`Error making the GET request: ${error.message}`);
+                return null;
+            });
     }
-    function addCard() {
-        // Create a new card div
+    function makeStringFancy(str) {
+        const words = str.split('_');
+        const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+        return capitalizedWords.join(' ');
+    }
+    function makeStringNotFanacy(inputString) {
+        return inputString.replace(/ /g, '_').toLowerCase();
+    }
+    function addLamp(id, lampName) {
         const cardDiv = document.createElement("div");
         cardDiv.className = "card";
         cardDiv.style.width = "auto";
 
-        // Create the card body
         const cardBody = document.createElement("div");
         cardBody.className = "card-body";
 
-        // Create the table
-        const table = document.createElement("table");
-        table.style.width = "100%";
+        const switchContainer = document.createElement("div");
+        switchContainer.className = "switch-container";
 
-        // Create the rows and cells for the table
-        const row1 = table.insertRow(0);
-        const cell1 = row1.insertCell(0);
-        const cell2 = row1.insertCell(1);
+        const switchLabel = document.createElement("label");
+        switchLabel.className = "switch";
+        switchLabel.innerHTML = "<input type=\"checkbox\"><span class=\"slider\"></span>";
 
-        const row2 = table.insertRow(1);
-        const cell3 = row2.insertCell(0);
+        const lampNameElement = document.createElement("h4");
+        lampNameElement.className = 'card-title';
+        lampNameElement.innerText = makeStringFancy(lampName);
 
-        var btn = "<label class=\"switch\">\n" +
-            "<input type=\"checkbox\">\n" +
-            "<span class=\"slider\"></span>\n" +
-            "</label>"
+        switchContainer.appendChild(lampNameElement);
+        switchContainer.appendChild(switchLabel);
 
-        // Create elements for the cells
-        cell1.innerHTML = "<h4 class='card-title'>Kitchen</h4>";
-        cell2.innerHTML = btn; //"<a href='#' class='btn btn-primary'>ON</a>";
-        cell2.rowSpan = 2; // Set rowspan for the second cell
-        cell3.innerHTML = "<p class='card-text'>Currently: OFF</p>";
-
-        // Append elements to the card
-        cardBody.appendChild(table);
+        cardBody.appendChild(switchContainer);
         cardDiv.appendChild(cardBody);
 
-        // Append the card to the container
         document.getElementById("cardContainer").appendChild(cardDiv);
+
+        const switchInput = cardDiv.querySelector('.switch input');
+        switchInput.addEventListener('click', function() {
+            const cardTitle = makeStringFancy(lampName);
+            const sliderState = switchInput.checked;
+            handleSwitchChange(cardTitle, sliderState);
+        });
+    }
+    function handleSwitchChange(cardTitle, sliderState) {
+        console.log("title:", cardTitle, "name:", makeStringNotFanacy(cardTitle), "state:", sliderState);
+        // TODO set button to specific state in the db
+        // if it's not successful then set the button to the opposite state(like nothing happened)
+        // if failed then give an alert "backend error" or something bullshit
+
+        sendNewState(makeStringNotFanacy(cardTitle), sliderState);
+    }
+    function setSliderState(cardTitle, newState) {
+        const cardTitles = document.querySelectorAll('.card-title');
+        cardTitles.forEach(titleElement => {
+            if (titleElement.textContent === cardTitle) {
+                const slider = titleElement.nextElementSibling.querySelector('.switch input');
+                if (slider) {
+                    // Update the state of the slider's checkbox input
+                    slider.checked = newState;
+
+                    // Trigger a change event to ensure any associated event listeners are notified
+                    const changeEvent = new Event('change', { bubbles: true });
+                    slider.dispatchEvent(changeEvent);
+                }
+            }
+        });
+    }
+    function sendNewState(name, state) {
+        const url = 'http://backend:8088/api/addRecord';
+
+        const data = {
+            lamp: name,
+            status: state
+        };
+
+        const jsonData = JSON.stringify(data);
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        };
+
+        fetch(url, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
     }
 </script>
 
