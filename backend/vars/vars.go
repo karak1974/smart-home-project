@@ -26,7 +26,7 @@ func GetPort() string {
 func GetMaxTry() int {
 	var mt, err = strconv.Atoi(os.Getenv("MAX_TRY"))
 	if err != nil || mt == 0 {
-		mt = 20
+		mt = 25
 	}
 	return mt
 }

@@ -13,12 +13,15 @@ services:
     networks:
       - bridge
 
-  smart-home:
+  backend:
     build: ./backend/
     depends_on:
       - db
     restart: unless-stopped
+    volumes:
+      - ./backend/content/:/app/content
     environment:
+      ROOMS: living_room dining_room kitchen bedroom bathroom hall_1 hall_2 kids_bedroom
       DB_USER: root
       DB_PASS: supersecret
       DB_PORT: 3306

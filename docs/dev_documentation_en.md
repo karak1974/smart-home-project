@@ -9,43 +9,43 @@ To start it as a daemon `docker compose up -d`
 
 ## API documentation
 ### Add record
-POST `/addRecord`  
+POST `/api/addRecord`  
 Request body:  
 `{"lamp":"<lamp_name>", "status":<bool>}`  
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
 ### Get record by ID
-GET `/getRecordById/<ID>`  
+GET `/api/getRecordById/<ID>`  
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
 ### Get last record by lamp
-GET `/getLastByLamp/<lamp>`  
+GET `/api/getLastByLamp/<lamp>`  
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
 ### Get last record
-GET `/getLast`  
+GET `/api/getLast`  
 Response body:  
 `{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}`
 
 ### Get last X amount record
-GET `/getLast/<amount>`  
+GET `/api/getLast/<amount>`  
 Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
 
 ### Get last X amount record by lamp
-GET `/getLast/<lamp>/<amount>`  
+GET `/api/getLast/<lamp>/<amount>`  
 Response body:  
 `[{"id":<id>, "lamp":"<lamp>", "date":"<date>", "status":<bool>}]`
 
 ### Get lamps
-GET `/getLamps`
+GET `/api/getLamps`
 `null` or `["lamp0", "lamp1", ...]` 
 
 ### HealthCheck
-GET `/hc`
+GET `/api/hc`
 Response body:
 `OK` or `NOT_OK`
 

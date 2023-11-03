@@ -6,47 +6,67 @@ import (
 	"os"
 	"time"
 
-	"smarthome/db"
-	"smarthome/router"
-	"smarthome/vars"
+	"backend/db"
+	"backend/misc"
+	"backend/router"
+	"backend/vars"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 )
 
 func main() {
 	// Wait for MySQL to start
 	slog.Info("Starting Smarthome API")
 	for i := 0; i < vars.GetMaxTry(); i++ {
-		slog.Info("Trying reaching the database",
-			slog.Int("attempt", i+1))
-		time.Sleep(5 * time.Second)
+		slog.Info("Trying reaching the database", slog.Int("attempt", i+1))
+
 		if err := db.HealthCheck(); err == nil {
+			slog.Info("Database reached")
 			break
 		}
-
 		if i == vars.GetMaxTry()-1 {
 			slog.Error("Could not connect to the database, exiting...")
 			os.Exit(1)
 		}
+
+		time.Sleep(10 * time.Second)
+	}
+
+	// Setup lamps
+	if err := misc.SetupLamps(); err != nil {
+		slog.Error("Error during lamp setup", slog.Any("error", err))
+		os.Exit(1)
 	}
 
 	// Setup server
 	r := chi.NewRouter()
-	r.Post("/addRecord", router.AddRecordHandler)
-	r.Get("/getRecordById/{id}", router.GetRecordByIdHandler)
-	r.Get("/getLastByLamp/{lamp}", router.GetLastByLampHandler)
-	r.Get("/getLast", router.GetLastHandler)
-	r.Get("/getLast/{amount}", router.GetLastAmountHandler)
-	r.Get("/getLast/{lamp}/{amount}", router.GetLastAmountByLampHandler)
-	r.Get("/getLamps", router.GetLamps)
-	r.Get("/hc", router.HealthCheckHandler)
+	cors := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+	r.Use(cors.Handler)
+	// Backend
+	r.Post("/api/addRecord", router.AddRecordHandler)
+	r.Get("/api/getRecordById/{id}", router.GetRecordByIdHandler)
+	r.Get("/api/getLastByLamp/{lamp}", router.GetLastByLampHandler)
+	r.Get("/api/getLast", router.GetLastHandler)
+	r.Get("/api/getLast/{amount}", router.GetLastAmountHandler)
+	r.Get("/api/getLast/{lamp}/{amount}", router.GetLastAmountByLampHandler)
+	r.Get("/api/getLamps", router.GetLamps)
+	r.Get("/api/hc", router.HealthCheckHandler)
+	// Frontend
+	misc.FileServer(r, "/", http.Dir("./content"))
 
 	// Run server
 	var port = vars.GetPort()
-	slog.Info("Smarthome API is running",
-		slog.String("port", port))
+	slog.Info("Smarthome API is running", slog.String("port", port))
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		slog.Error("Could not serve HTTP API",
-			slog.String("port", port))
+		slog.Error("Could not serve HTTP API", slog.String("port", port))
 	}
 }

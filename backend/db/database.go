@@ -3,8 +3,8 @@ package db
 import (
 	"database/sql"
 
-	"smarthome/types"
-	"smarthome/vars"
+	"backend/types"
+	"backend/vars"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -16,10 +16,10 @@ func getDB() (*sql.DB, error) {
 
 // AddRecord adds a log record about status2 of a lamp
 // We don't give the ID due the database will create it
-func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
+func AddRecord(eventLog types.Lamp) (types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 	defer db.Close()
 
@@ -27,17 +27,17 @@ func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
 		eventLog.Lamp,
 		eventLog.Status)
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 
-	var res types.EventLog
+	var res types.Lamp
 	var id int
 	var lamp, date string
 	var status bool
 
 	events := db.QueryRow("SELECT * FROM event_logs WHERE lamp=? ORDER BY id DESC", eventLog.Lamp)
 	if err = events.Scan(&id, &lamp, &date, &status); err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 
 	res.Id = id
@@ -49,21 +49,21 @@ func AddRecord(eventLog types.EventLog) (types.EventLog, error) {
 }
 
 // GetRecordById return a record where the provided ID appears
-func GetRecordById(recordId int) (types.EventLog, error) {
+func GetRecordById(recordId int) (types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 	defer db.Close()
 
-	var res types.EventLog
+	var res types.Lamp
 	var id int
 	var lamp, date string
 	var status bool
 
 	events := db.QueryRow("SELECT * FROM event_logs WHERE id=? ORDER BY id DESC LIMIT 1", recordId)
 	if err = events.Scan(&id, &lamp, &date, &status); err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 
 	res.Id = id
@@ -75,19 +75,19 @@ func GetRecordById(recordId int) (types.EventLog, error) {
 }
 
 // GetLastByLamp return a record with the provided lamp's name
-func GetLastByLamp(recordLamp string) (types.EventLog, error) {
+func GetLastByLamp(recordLamp string) (types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 	defer db.Close()
 
 	events, err := db.Query("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT 1", recordLamp)
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 
-	var res types.EventLog
+	var res types.Lamp
 
 	if events.Next() {
 		var id int
@@ -95,7 +95,7 @@ func GetLastByLamp(recordLamp string) (types.EventLog, error) {
 		var status bool
 		err = events.Scan(&id, &lamp, &date, &status)
 		if err != nil {
-			return types.EventLog{}, err
+			return types.Lamp{}, err
 		}
 		res.Id = id
 		res.Lamp = lamp
@@ -107,19 +107,19 @@ func GetLastByLamp(recordLamp string) (types.EventLog, error) {
 }
 
 // GetLastRecord return the last record
-func GetLastRecord() (types.EventLog, error) {
+func GetLastRecord() (types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 	defer db.Close()
 
 	events, err := db.Query("SELECT * FROM event_logs ORDER BY date DESC LIMIT 1")
 	if err != nil {
-		return types.EventLog{}, err
+		return types.Lamp{}, err
 	}
 
-	var res types.EventLog
+	var res types.Lamp
 
 	if events.Next() {
 		var id int
@@ -127,7 +127,7 @@ func GetLastRecord() (types.EventLog, error) {
 		var status bool
 		err = events.Scan(&id, &lamp, &date, &status)
 		if err != nil {
-			return types.EventLog{}, err
+			return types.Lamp{}, err
 		}
 		res.Id = id
 		res.Lamp = lamp
@@ -139,26 +139,26 @@ func GetLastRecord() (types.EventLog, error) {
 }
 
 // GetLastAmountRecord returns last records by given amount
-func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
+func GetLastAmountRecord(amount int) ([]types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return []types.EventLog{}, err
+		return []types.Lamp{}, err
 	}
 	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT * FROM event_logs ORDER BY date DESC LIMIT ?")
 	if err != nil {
-		return []types.EventLog{}, err
+		return []types.Lamp{}, err
 	}
 	defer stmt.Close()
 
 	events, err := stmt.Query(amount)
 	if err != nil {
-		return []types.EventLog{}, err
+		return []types.Lamp{}, err
 	}
 
-	var tmp types.EventLog
-	var res []types.EventLog
+	var tmp types.Lamp
+	var res []types.Lamp
 
 	for events.Next() {
 		var id int
@@ -166,7 +166,7 @@ func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 		var status bool
 		err = events.Scan(&id, &lamp, &date, &status)
 		if err != nil {
-			return []types.EventLog{}, err
+			return []types.Lamp{}, err
 		}
 		tmp.Id = id
 		tmp.Lamp = lamp
@@ -179,26 +179,26 @@ func GetLastAmountRecord(amount int) ([]types.EventLog, error) {
 }
 
 // GetLastAmountByLamp returns last records for a specific lamps by given amount
-func GetLastAmountByLamp(reqLamp string, amount int) ([]types.EventLog, error) {
+func GetLastAmountByLamp(reqLamp string, amount int) ([]types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return []types.EventLog{}, err
+		return []types.Lamp{}, err
 	}
 	defer db.Close()
 
 	stmt, err := db.Prepare("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT ?")
 	if err != nil {
-		return []types.EventLog{}, err
+		return []types.Lamp{}, err
 	}
 	defer stmt.Close()
 
 	events, err := stmt.Query(reqLamp, amount)
 	if err != nil {
-		return []types.EventLog{}, err
+		return []types.Lamp{}, err
 	}
 
-	var tmp types.EventLog
-	var res []types.EventLog
+	var tmp types.Lamp
+	var res []types.Lamp
 
 	for events.Next() {
 		var id int
@@ -206,7 +206,7 @@ func GetLastAmountByLamp(reqLamp string, amount int) ([]types.EventLog, error) {
 		var status bool
 		err = events.Scan(&id, &lamp, &date, &status)
 		if err != nil {
-			return []types.EventLog{}, err
+			return []types.Lamp{}, err
 		}
 		tmp.Id = id
 		tmp.Lamp = lamp

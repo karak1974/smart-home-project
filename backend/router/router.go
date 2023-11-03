@@ -1,13 +1,14 @@
 package router
 
 import (
+	"backend/misc"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
 
-	"smarthome/db"
-	"smarthome/types"
+	"backend/db"
+	"backend/types"
 
 	"github.com/go-chi/chi"
 )
@@ -16,18 +17,17 @@ import (
 func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Got AddRecord POST request")
 
-	event := &types.EventLog{}
+	event := &types.Lamp{}
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&event); err != nil {
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
-	slog.Info("Request body",
-		slog.String("lamp", event.Lamp),
-		slog.Bool("status", event.Status))
+	slog.Info("Request body", slog.String("lamp", event.Lamp), slog.Bool("status", event.Status))
+	// TODO check if lamp exist based on the stored lamps in the db
 
 	// Create and add a record to the database
-	record := types.EventLog{
+	record := types.Lamp{
 		Id:     0,
 		Lamp:   event.Lamp,
 		Date:   "",
@@ -35,8 +35,7 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	record, err := db.AddRecord(record)
 	if err != nil {
-		slog.Error("Error adding record to the database",
-			slog.Any("error", err),
+		slog.Error("Error adding record to the database", slog.Any("error", err),
 			slog.Any("record", record))
 		http.Error(w, "Error adding record to the database", http.StatusInternalServerError)
 		return
@@ -55,21 +54,17 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 // GetRecordByIdHandler handler for /getRecordById/<ID> GET request
 func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 	urlId := chi.URLParam(r, "id")
-	slog.Info("Got GetRecordById GET request",
-		slog.String("id", urlId))
+	slog.Info("Got GetRecordById GET request", slog.String("id", urlId))
 
 	id, err := strconv.Atoi(urlId)
 	if err != nil {
-		slog.Error("Error parsing request",
-			slog.Any("error", err),
-			slog.String("record_id", urlId))
+		slog.Error("Error parsing request", slog.Any("error", err), slog.String("record_id", urlId))
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 	record, err := db.GetRecordById(id)
 	if err != nil {
-		slog.Error("Error getting record from the database",
-			slog.Any("error", err),
+		slog.Error("Error getting record from the database", slog.Any("error", err),
 			slog.Int("record_id", id))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
@@ -87,13 +82,12 @@ func GetRecordByIdHandler(w http.ResponseWriter, r *http.Request) {
 // GetLastByLampHandler handler for /getLastByLamp/<LAMP> GET requests
 func GetLastByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
-	slog.Info("Got GetLastByLamp GET request",
-		slog.String("lamp", lamp))
+	slog.Info("Got GetLastByLamp GET request", slog.String("lamp", lamp))
+	// TODO check if lamp exist based on the stored lamps in the db
 
 	record, err := db.GetLastByLamp(lamp)
 	if err != nil {
-		slog.Error("Error getting record from the database",
-			slog.Any("error", err),
+		slog.Error("Error getting record from the database", slog.Any("error", err),
 			slog.String("lamp", lamp))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
@@ -114,8 +108,7 @@ func GetLastHandler(w http.ResponseWriter, r *http.Request) {
 
 	record, err := db.GetLastRecord()
 	if err != nil {
-		slog.Error("Error getting record from the database",
-			slog.Any("error", err))
+		slog.Error("Error getting record from the database", slog.Any("error", err))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
 
@@ -132,22 +125,18 @@ func GetLastHandler(w http.ResponseWriter, r *http.Request) {
 // GetLastAmountHandler handler for /getLast/<AMOUNT> GET requests
 func GetLastAmountHandler(w http.ResponseWriter, r *http.Request) {
 	urlAmount := chi.URLParam(r, "amount")
-	slog.Info("Got GetLastAmount GET request",
-		slog.String("amount", urlAmount))
+	slog.Info("Got GetLastAmount GET request", slog.String("amount", urlAmount))
 
 	amount, err := strconv.Atoi(urlAmount)
 	if err != nil {
-		slog.Error("Error parsing request",
-			slog.Any("error", err),
-			slog.String("amount", urlAmount))
+		slog.Error("Error parsing request", slog.Any("error", err), slog.String("amount", urlAmount))
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	record, err := db.GetLastAmountRecord(amount)
 	if err != nil {
-		slog.Error("Error getting record from the database",
-			slog.Any("error", err))
+		slog.Error("Error getting record from the database", slog.Any("error", err))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
 
@@ -165,22 +154,19 @@ func GetLastAmountHandler(w http.ResponseWriter, r *http.Request) {
 func GetLastAmountByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
 	urlAmount := chi.URLParam(r, "amount")
-	slog.Info("Got GetLastAmountByLamp GET request",
-		slog.String("amount", urlAmount))
+	slog.Info("Got GetLastAmountByLamp GET request", slog.String("amount", urlAmount))
+	// TODO check if lamp exist based on the stored lamps in the db
 
 	amount, err := strconv.Atoi(urlAmount)
 	if err != nil {
-		slog.Error("Error parsing request",
-			slog.Any("error", err),
-			slog.String("amount", urlAmount))
+		slog.Error("Error parsing request", slog.Any("error", err), slog.String("amount", urlAmount))
 		http.Error(w, "Error reading request body", http.StatusBadRequest)
 		return
 	}
 
 	record, err := db.GetLastAmountByLamp(lamp, amount)
 	if err != nil {
-		slog.Error("Error getting record from the database",
-			slog.Any("error", err))
+		slog.Error("Error getting record from the database", slog.Any("error", err))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
 
@@ -197,10 +183,9 @@ func GetLastAmountByLampHandler(w http.ResponseWriter, r *http.Request) {
 func GetLamps(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Got GetLamps request")
 
-	lamps, err := db.GetDistinctLamp()
+	lamps, err := misc.GetLamps()
 	if err != nil {
-		slog.Error("Error getting distinct lamps",
-			slog.Any("error", err))
+		slog.Error("Error getting lamps", slog.Any("error", err))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
 	var resp = []byte{}
@@ -208,8 +193,6 @@ func GetLamps(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("Error marshalling response")
 	}
-
-	slog.Info("LAMPS", slog.String("response", string(resp)))
 
 	if _, err = w.Write(resp); err != nil {
 		slog.Error("Could not serve request for GetLamps")
@@ -226,7 +209,6 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Could not connect to the database")
 	}
 	if _, err := w.Write([]byte(resp + "\n")); err != nil {
-		slog.Error("Could not serve request for HealthCheck",
-			slog.Any("error", err))
+		slog.Error("Could not serve request for HealthCheck", slog.Any("error", err))
 	}
 }
