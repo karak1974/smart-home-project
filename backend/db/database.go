@@ -109,6 +109,27 @@ func GetDistinctLamp() ([]types.Lamp, error) {
 	return res, nil
 }
 
+// IsLampExist return tru if lamp exits in the database
+func IsLampExist(lampName string) (bool, error) {
+	db, err := getDB()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	var lamp string
+	events := db.QueryRow("SELECT lamp FROM event_logs WHERE lamp=? ORDER BY id DESC LIMIT 1", lampName)
+	if err = events.Scan(&lamp); err != nil {
+		return false, err
+	}
+
+	if lamp != "" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func HealthCheck() error {
 	db, err := getDB()
 	if err != nil {

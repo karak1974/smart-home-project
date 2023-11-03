@@ -2,7 +2,6 @@ package router
 
 import (
 	"backend/db"
-	"backend/misc"
 	"backend/types"
 	"encoding/json"
 	"log/slog"
@@ -22,7 +21,9 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slog.Info("Request body", slog.String("lamp", event.Lamp), slog.Bool("state", event.State))
-	// TODO check if lamp exist based on the stored lamps in the db
+	if _, err := db.IsLampExist(event.Lamp); err != nil {
+		http.Error(w, "Error this lamp does not exist", http.StatusBadRequest)
+	}
 
 	// Create and add a record to the database
 	record := types.Lamp{
@@ -53,6 +54,9 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 func GetLastByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
 	slog.Info("Got GetLastByLamp GET request", slog.String("lamp", lamp))
+	if _, err := db.IsLampExist(lamp); err != nil {
+		http.Error(w, "Error this lamp does not exist", http.StatusBadRequest)
+	}
 
 	record, err := db.GetLastByLamp(lamp)
 	if err != nil {
@@ -74,7 +78,7 @@ func GetLastByLampHandler(w http.ResponseWriter, r *http.Request) {
 func GetLamps(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Got GetLamps request")
 
-	lamps, err := misc.GetLamps()
+	lamps, err := db.GetDistinctLamp()
 	if err != nil {
 		slog.Error("Error getting lamps", slog.Any("error", err))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
