@@ -32,8 +32,8 @@ func SetupLamps() error {
 	slog.Info("Adding lamps to the database", slog.Any("lamps", lamps))
 	for _, lamp := range lamps {
 		l := types.Lamp{
-			Lamp:   lamp,
-			Status: false,
+			Lamp:  lamp,
+			State: false,
 		}
 		if _, dbErr := db.AddRecord(l); dbErr != nil {
 			slog.Error("Error adding lamp to the database", slog.Any("error", dbErr),
@@ -45,7 +45,7 @@ func SetupLamps() error {
 }
 
 // GetLamps return the array of lamps
-func GetLamps() ([]string, error) {
+func GetLamps() ([]types.Lamp, error) {
 	lamps, err := db.GetDistinctLamp()
 	if err != nil {
 		return nil, err

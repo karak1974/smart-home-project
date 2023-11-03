@@ -17,7 +17,7 @@ func getDB() (*sql.DB, error) {
 	return db, err
 }
 
-// AddRecord adds a log record about status2 of a lamp
+// AddRecord adds a log record about state2 of a lamp
 // We don't give the ID due the database will create it
 func AddRecord(eventLog types.Lamp) (types.Lamp, error) {
 	db, err := getDB()
@@ -26,27 +26,25 @@ func AddRecord(eventLog types.Lamp) (types.Lamp, error) {
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO event_logs (lamp, date, status) VALUES (?, NOW(), ?)",
+	_, err = db.Exec("INSERT INTO event_logs (lamp, date, state) VALUES (?, NOW(), ?)",
 		eventLog.Lamp,
-		eventLog.Status)
+		eventLog.State)
 	if err != nil {
 		return types.Lamp{}, err
 	}
 
 	var res types.Lamp
-	var id int
 	var lamp, date string
-	var status bool
+	var state bool
 
-	events := db.QueryRow("SELECT * FROM event_logs WHERE lamp=? ORDER BY id DESC", eventLog.Lamp)
-	if err = events.Scan(&id, &lamp, &date, &status); err != nil {
+	events := db.QueryRow("SELECT lamp, date, state FROM event_logs WHERE lamp=? ORDER BY id DESC", eventLog.Lamp)
+	if err = events.Scan(&lamp, &date, &state); err != nil {
 		return types.Lamp{}, err
 	}
 
-	res.Id = id
 	res.Lamp = lamp
 	res.Date = date
-	res.Status = status
+	res.State = state
 
 	return res, nil
 }
@@ -59,7 +57,7 @@ func GetLastByLamp(recordLamp string) (types.Lamp, error) {
 	}
 	defer db.Close()
 
-	events, err := db.Query("SELECT * FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT 1", recordLamp)
+	events, err := db.Query("SELECT lamp, date, state FROM event_logs WHERE lamp=? ORDER BY date DESC LIMIT 1", recordLamp)
 	if err != nil {
 		return types.Lamp{}, err
 	}
@@ -67,43 +65,45 @@ func GetLastByLamp(recordLamp string) (types.Lamp, error) {
 	var res types.Lamp
 
 	if events.Next() {
-		var id int
 		var lamp, date string
-		var status bool
-		err = events.Scan(&id, &lamp, &date, &status)
+		var state bool
+		err = events.Scan(&lamp, &date, &state)
 		if err != nil {
 			return types.Lamp{}, err
 		}
-		res.Id = id
 		res.Lamp = lamp
 		res.Date = date
-		res.Status = status
+		res.State = state
 	}
 
 	return res, nil
 }
 
-func GetDistinctLamp() ([]string, error) {
+func GetDistinctLamp() ([]types.Lamp, error) {
 	db, err := getDB()
 	if err != nil {
-		return []string{}, err
+		return []types.Lamp{}, err
 	}
 	defer db.Close()
 
-	var res []string
-	lampArray, err := db.Query("SELECT DISTINCT lamp FROM event_logs;")
+	lampArray, err := db.Query("SELECT lamp, state FROM ( SELECT id, lamp, date, state, ROW_NUMBER() OVER (PARTITION BY lamp ORDER BY date DESC) AS rn FROM event_logs ) AS subquery WHERE rn = 1;")
 	if err != nil {
-		return []string{}, err
+		return []types.Lamp{}, err
 	}
 	defer lampArray.Close()
 
+	var res []types.Lamp
 	for lampArray.Next() {
+		var tmp types.Lamp
 		var lamp string
-		err = lampArray.Scan(&lamp)
+		var state bool
+		err = lampArray.Scan(&lamp, &state)
 		if err != nil {
-			return []string{}, err
+			return []types.Lamp{}, err
 		}
-		res = append(res, lamp)
+		tmp.Lamp = lamp
+		tmp.State = state
+		res = append(res, tmp)
 	}
 
 	return res, nil

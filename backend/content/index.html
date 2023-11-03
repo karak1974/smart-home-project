@@ -82,27 +82,17 @@
 
 <script>
     function init() {
-        console.log("Getting lamps form backend")
-
         let result;
         getlamps()
             .then(data => {
                 if (data !== null) {
                     result = data;
                     const rooms = JSON.parse(result);
-                    console.log("LAMPS", result);
                     for (let i = 0; i < rooms.length; i++) {
-                        addLamp(i, rooms[i]);
-                        getlampState(rooms[i])
-                            .then(
-                                d => {
-                                    let s = JSON.parse(d)
-                                    console.log("A name:", rooms[i], "state:", s.status);
-                                    if ( b === true ) {
-                                        console.log("Lamp is on:", rooms[i]);
-                                    }
-                                }
-                            )
+                        addLamp(i, rooms[i].lamp);
+                        if ( rooms[i].state === true ) {
+                            setSliderState(makeStringFancy(rooms[i].lamp), rooms[i].state)
+                        }
                     }
                 }
             });
@@ -114,7 +104,7 @@
         return fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! State: ${response.state}`);
                 }
                 return response.text();
             })
@@ -132,7 +122,7 @@
         return fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! State: ${response.state}`);
                 }
                 return response.text();
             })
@@ -200,10 +190,8 @@
             if (titleElement.textContent === cardTitle) {
                 const slider = titleElement.nextElementSibling.querySelector('.switch input');
                 if (slider) {
-                    // Update the state of the slider's checkbox input
                     slider.checked = newState;
 
-                    // Trigger a change event to ensure any associated event listeners are notified
                     const changeEvent = new Event('change', { bubbles: true });
                     slider.dispatchEvent(changeEvent);
                 }
@@ -215,7 +203,7 @@
 
         const data = {
             lamp: name,
-            status: state
+            state: state
         };
 
         const jsonData = JSON.stringify(data);
@@ -231,7 +219,7 @@
         fetch(url, requestOptions)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! State: ${response.state}`);
                 }
                 return response.json();
             })

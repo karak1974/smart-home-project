@@ -21,15 +21,15 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
-	slog.Info("Request body", slog.String("lamp", event.Lamp), slog.Bool("status", event.Status))
+	slog.Info("Request body", slog.String("lamp", event.Lamp), slog.Bool("state", event.State))
 	// TODO check if lamp exist based on the stored lamps in the db
 
 	// Create and add a record to the database
 	record := types.Lamp{
-		Id:     0,
-		Lamp:   event.Lamp,
-		Date:   "",
-		Status: event.Status,
+		Id:    0,
+		Lamp:  event.Lamp,
+		Date:  "",
+		State: event.State,
 	}
 	record, err := db.AddRecord(record)
 	if err != nil {
@@ -53,7 +53,6 @@ func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 func GetLastByLampHandler(w http.ResponseWriter, r *http.Request) {
 	lamp := chi.URLParam(r, "lamp")
 	slog.Info("Got GetLastByLamp GET request", slog.String("lamp", lamp))
-	// TODO check if lamp exist based on the stored lamps in the db
 
 	record, err := db.GetLastByLamp(lamp)
 	if err != nil {
