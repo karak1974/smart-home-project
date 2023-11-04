@@ -83,7 +83,7 @@ func GetLamps(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error getting lamps", slog.Any("error", err))
 		http.Error(w, "Error getting record from the database", http.StatusInternalServerError)
 	}
-	var resp = []byte{}
+	var resp []byte
 	resp, err = json.Marshal(lamps)
 	if err != nil {
 		slog.Error("Error marshalling response")
