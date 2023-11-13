@@ -57,7 +57,7 @@ func main() {
 	r.Get("/api/getLamps", router.GetLamps)
 	r.Get("/api/hc", router.HealthCheckHandler)
 	// Frontend
-	misc.FileServer(r, "/", http.Dir("./content"))
+	misc.FileServer(r, "/", http.Dir("./frontend"))
 
 	// Run server
 	var port = vars.GetPort()

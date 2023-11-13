@@ -19,7 +19,7 @@ services:
       - db
     restart: unless-stopped
     volumes:
-      - ./backend/content/:/app/content
+      - ./frontend/:/app/frontend
     environment:
       ROOMS: living_room dining_room kitchen bedroom bathroom hall_1 hall_2 kids_bedroom
       DB_USER: root
