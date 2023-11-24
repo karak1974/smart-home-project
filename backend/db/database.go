@@ -12,8 +12,8 @@ import (
 // getDB returns a database handler
 func getDB() (*sql.DB, error) {
 	db, err := sql.Open("mysql", vars.ConnectionString)
-	db.SetMaxOpenConns(50)
-	db.SetMaxIdleConns(1000)
+	//db.SetMaxOpenConns(50)
+	//db.SetMaxIdleConns(1000)
 	return db, err
 }
 
