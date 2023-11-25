@@ -21,24 +21,28 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// Send "ACK" to the client
-	if err := conn.WriteMessage(websocket.TextMessage, []byte("ACK")); err != nil {
+	// SENDING DATA
+	d := "{[\"hall\": true, \"kitchen\": false]}"
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(d)); err != nil {
 		slog.Error("Error write message", slog.Any("error", err))
 		return
 	}
 
 	for {
-		messageType, p, err := conn.ReadMessage()
+		//messageType, msg, err := conn.ReadMessage()
+		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			slog.Error("Error read message", slog.Any("error", err))
 			return
 		}
-		slog.Info("Received message from client", slog.String("message", string(p)))
+		slog.Info("Received message from client", slog.String("client", conn.RemoteAddr().String()), slog.String("message", string(msg)))
 
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			slog.Error("Error write", slog.Any("error", err))
-			return
-		}
+		/*
+			if err := conn.WriteMessage(messageType, msg); err != nil {
+				slog.Error("Error write", slog.Any("error", err))
+				return
+			}
+		*/
 	}
 }
 
