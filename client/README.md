@@ -9,7 +9,7 @@ ip addr show wlan0 | grep 'inet ' | awk '{print $2}' | rev | cut -c 4- | rev && 
 Build && Upload
 ```
 cd SmartHome
-WIFI_SSID="name" WIFI_PASS="pass"; platformio run --target upload --upload-port /dev/ttyUSB0
+WIFI_SSID="name" WIFI_PASS="pass" platformio run --target upload --upload-port /dev/ttyUSB0
 ```
 
 Monitor

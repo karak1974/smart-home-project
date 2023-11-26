@@ -22,12 +22,6 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	// SENDING DATA
-	d := "{[\"hall\": true, \"kitchen\": false]}"
-	if err := conn.WriteMessage(websocket.TextMessage, []byte(d)); err != nil {
-		slog.Error("Error write message", slog.Any("error", err))
-		return
-	}
-
 	for {
 		//messageType, msg, err := conn.ReadMessage()
 		_, msg, err := conn.ReadMessage()
@@ -35,14 +29,17 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 			slog.Error("Error read message", slog.Any("error", err))
 			return
 		}
-		slog.Info("Received message from client", slog.String("client", conn.RemoteAddr().String()), slog.String("message", string(msg)))
+		if string(msg) != "OK" {
+			slog.Info("Received message from client", slog.String("client", conn.RemoteAddr().String()),
+				slog.String("message", string(msg)))
+		}
+		// Else do something if the controller won't response for 5 sec
 
-		/*
-			if err := conn.WriteMessage(messageType, msg); err != nil {
-				slog.Error("Error write", slog.Any("error", err))
-				return
-			}
-		*/
+		d := "11010011"
+		if err := conn.WriteMessage(websocket.TextMessage, []byte(d)); err != nil {
+			slog.Error("Error write message", slog.Any("error", err))
+			return
+		}
 	}
 }
 

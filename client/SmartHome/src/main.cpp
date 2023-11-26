@@ -17,11 +17,36 @@ char host[] = "192.168.1.102"; // dev server
  
 WebSocketClient webSocketClient;
 WiFiClient client;
- 
+
+void lampController(String input) {
+  int length = 8;
+  int binaryArray[length];
+
+  for (int i = 0; i < length; ++i) {
+    binaryArray[i] = static_cast<int>(input[i]) - '0';
+  }
+
+  for (int i = 0; i < length; ++i) {
+    Serial.printf("%d->%d ", i, binaryArray[i]);
+  }
+  Serial.printf("\n");
+
+  /*
+  GPIO12 	Relay 2
+  GPIO13 	Relay 1
+  GPIO14 	Relay 3
+  GPIO25 	Relay 6
+  GPIO26 	Relay 5
+  GPIO27 	Relay 4
+  GPIO32 	Relay 8
+  GPIO33 	Relay 7 
+  */
+}
+
 void setup() {
   Serial.begin(115200);
  
-  // WIFI
+  // Connect to WIFI
   Serial.printf("INFO :: WIFI :: Connecting to %s\n", ssid);
   WiFi.begin(ssid, pass);
   int i = 1;
@@ -33,7 +58,7 @@ void setup() {
   Serial.printf("INFO :: WIFI :: IP address: ");
   Serial.println(WiFi.localIP());
  
-  // WEBSOCKET
+  // Connect to WebSocket
   delay(5000);
   if (client.connect(host, 8087)) {
     Serial.println("INFO :: WebSocket :: Connected");
@@ -41,6 +66,7 @@ void setup() {
     Serial.println("ERROR :: WebSocket :: Connection failed");
   }
  
+  // Create WebSocket handshake
   webSocketClient.path = path;
   webSocketClient.host = host;
   if (webSocketClient.handshake(client)) {
@@ -55,20 +81,20 @@ void loop() {
   String data;
  
   if (client.connected()) {
- 
     // Sending alive signal
     webSocketClient.sendData("OK");
  
     webSocketClient.getData(data);
     if (data.length() > 0) {
-      Serial.print("Received data: ");
-      Serial.println(data);
+      Serial.printf("INFO :: WebSocket :: Received data: %s\n", data);
+      lampController(data);
     }
  
   } else {
     Serial.println("ERROR :: WebSocket :: Client disconnected");
   }
  
-  delay(3000);
+  // Decrease at release
+  delay(5000);
  
 }
