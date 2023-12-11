@@ -13,17 +13,17 @@ const char* ssid = xstr(WIFI_SSID);
 const char* pass = xstr(WIFI_PASS);
 
 char path[] = "/smart-home";
-char host[] = "192.168.1.102"; // dev server
+char host[] = "192.168.43.86"; // dev server
  
 WebSocketClient webSocketClient;
 WiFiClient client;
 
 void lampController(String input) {
   int length = 8;
-  int binaryArray[length];
+  bool binaryArray[length];
 
   for (int i = 0; i < length; ++i) {
-    binaryArray[i] = static_cast<int>(input[i]) - '0';
+    binaryArray[i] = input[i] - '0';
   }
 
   for (int i = 0; i < length; ++i) {

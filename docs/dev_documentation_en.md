@@ -1,7 +1,8 @@
 # Developer documentation
 
-## Setup
+[Visualized description](https://miro.com/welcomeonboard/cTJxMlpKNDVTWW4wbndPR0dxcVJqdVFaSXZidWRiSVo0cWNaRVdpcTNOR0xlTTNVZ1NjVVpoUmloVmRnbGdKeXwzNDU4NzY0NTQ3MjMxMDAyNDg1fDI=?share_link_id=25637035199)
 
+## Setup
 ### Backend  
 The backend have only one dependency which is [Docker](https://www.docker.com/).  
 To start it `docker compose up`  
