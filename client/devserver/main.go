@@ -13,6 +13,23 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+var d = "11001010"
+var xorKey = []byte{0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00}
+
+func xorData(input string) string {
+	if len(input) != len(xorKey) {
+		return ""
+	}
+
+	result := make([]byte, len(input))
+
+	for i := range input {
+		result[i] = input[i] ^ xorKey[i]
+	}
+
+	return string(result)
+}
+
 func handleClient(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -35,8 +52,8 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 		}
 		// Else do something if the controller won't response for 5 sec
 
-		d := "11010011"
-		if err := conn.WriteMessage(websocket.TextMessage, []byte(d)); err != nil {
+		// Send the XORed data
+		if err := conn.WriteMessage(websocket.TextMessage, []byte(xorData(d))); err != nil {
 			slog.Error("Error write message", slog.Any("error", err))
 			return
 		}
@@ -46,6 +63,9 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 func main() {
 	slog.Info("DEV WebSocket server")
 	slog.Info("Test connection on ws://127.0.0.1:8087/smart-home")
+	slog.Info("Test data", slog.String("data", d))
+	slog.Info("XOR secret key", slog.String("key", string(xorKey)))
+	slog.Info("XORed data", slog.String("xor_data", xorData(d)))
 
 	http.HandleFunc("/smart-home", handleClient)
 	if err := http.ListenAndServe(":8087", nil); err != nil {
