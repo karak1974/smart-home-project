@@ -13,11 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
+var upgrader = websocket.Upgrader{}
 
 // State of leds in binary
 var states = "01000000"
@@ -123,6 +119,7 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 
 // HandleClients handler for the /smart-home WS connections
 func HandleClient(w http.ResponseWriter, r *http.Request) {
+	slog.Info("Controller tries to connect")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		slog.Error("Error connection to upgrade", slog.Any("error", err))
