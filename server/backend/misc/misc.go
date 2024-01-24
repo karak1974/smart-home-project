@@ -3,6 +3,7 @@ package misc
 import (
 	"backend/db"
 	"backend/types"
+	"encoding/hex"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,6 +11,36 @@ import (
 
 	"github.com/go-chi/chi"
 )
+
+var xorKey = func() []byte {
+	keyString := os.Getenv("XOR_KEY")
+	if keyString == "" {
+		slog.Error("Environment variable not set", slog.String("env", "XOR_KEY"))
+		os.Exit(1)
+	}
+
+	key, err := hex.DecodeString(keyString)
+	if err != nil {
+		slog.Error("Can't decode XOR key", slog.Any("error", err))
+	}
+
+	return key
+}()
+
+// XorData takes an input string and XOR it with a key
+func XorData(input string) string {
+	if len(input) != len(xorKey) {
+		return ""
+	}
+
+	result := make([]byte, len(input))
+
+	for i := range input {
+		result[i] = input[i] ^ xorKey[i]
+	}
+
+	return string(result)
+}
 
 // FileServer serve a static file server based on the given folder
 func FileServer(r chi.Router, path string, root http.FileSystem) {

@@ -85,7 +85,7 @@ void setup() {
  
   // Connect to WebSocket
   delay(5000);
-  if (client.connect(host, 8087)) {
+  if (client.connect(host, 8088)) {
     Serial.println("INFO :: WS :: Connected");
   } else {
     Serial.println("ERROR :: WS :: Connection failed");
@@ -124,7 +124,7 @@ void loop() {
     }
  
   } else {
-    Serial.println("ERROR :: WS :: Client disconnected");
+    Serial.println("ERROR :: WS :: Server unreachable");
   }
  
   // Decrease at release

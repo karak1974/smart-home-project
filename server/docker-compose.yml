@@ -22,6 +22,7 @@ services:
       - ./frontend/:/app/frontend
     environment:
       ROOMS: living_room dining_room kitchen bedroom bathroom hall_1 hall_2 kids_bedroom
+      XOR_KEY: "10101010"
       DB_USER: root
       DB_PASS: supersecret
       DB_PORT: 3306
