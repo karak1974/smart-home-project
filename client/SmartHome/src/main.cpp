@@ -6,11 +6,25 @@
 #include <WebSocketClient.h>
 #include "lwip/ip4_addr.h"
 
+#define R0 13
+#define R1 12
+#define R2 14
+#define R3 27
+#define R4 26
+#define R5 25
+#define R6 33
+#define R7 32
+
+const int gpioPins[] = {R0, R1, R2, R3, R4, R5, R6, R7};
+
 #define xstr(s) str(s)
 #define str(s) #s
 
 const char* ssid = xstr(WIFI_SSID);
 const char* pass = xstr(WIFI_PASS);
+const char* xor_key = xstr(XOR_KEY);
+
+int debug = 1; // Later make this a bool env
 
 char path[] = "/smart-home";
 char host[] = "192.168.43.86"; // dev server
@@ -18,8 +32,18 @@ char host[] = "192.168.43.86"; // dev server
 WebSocketClient webSocketClient;
 WiFiClient client;
 
+String xorData(String input) {
+    String ret;
+    // Assuming both strings have the same length, DON'T DO THIS
+    for (int i = 0; i < input.length(); i++) {
+      ret += input[i] ^ xor_key[i];
+    }
+
+    return ret;
+}
+
 void lampController(String input) {
-  int length = 8;
+  int length = input.length();
   bool binaryArray[length];
 
   for (int i = 0; i < length; ++i) {
@@ -27,33 +51,34 @@ void lampController(String input) {
   }
 
   for (int i = 0; i < length; ++i) {
-    Serial.printf("%d->%d ", i, binaryArray[i]);
+    if (binaryArray[i]) {
+      digitalWrite(gpioPins[i], HIGH);
+    } else {
+      digitalWrite(gpioPins[i], LOW);
+    }
   }
-  Serial.printf("\n");
-
-  /*
-  GPIO12 	Relay 2
-  GPIO13 	Relay 1
-  GPIO14 	Relay 3
-  GPIO25 	Relay 6
-  GPIO26 	Relay 5
-  GPIO27 	Relay 4
-  GPIO32 	Relay 8
-  GPIO33 	Relay 7 
-  */
 }
 
 void setup() {
   Serial.begin(115200);
+
+  pinMode(R0, OUTPUT);
+  pinMode(R1, OUTPUT);
+  pinMode(R2, OUTPUT);
+  pinMode(R3, OUTPUT);
+  pinMode(R4, OUTPUT);
+  pinMode(R5, OUTPUT);
+  pinMode(R6, OUTPUT);
+  pinMode(R7, OUTPUT);
  
   // Connect to WIFI
   Serial.printf("INFO :: WIFI :: Connecting to %s\n", ssid);
   WiFi.begin(ssid, pass);
-  int i = 1;
+  int attempt = 1;
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.printf("INFO :: WIFI :: Attempt %d\n", i);
-    i++;
+    Serial.printf("INFO :: WIFI :: Attempt %d\n", attempt);
+    attempt++;
   }
   Serial.printf("INFO :: WIFI :: IP address: ");
   Serial.println(WiFi.localIP());
@@ -61,37 +86,45 @@ void setup() {
   // Connect to WebSocket
   delay(5000);
   if (client.connect(host, 8087)) {
-    Serial.println("INFO :: WebSocket :: Connected");
+    Serial.println("INFO :: WS :: Connected");
   } else {
-    Serial.println("ERROR :: WebSocket :: Connection failed");
+    Serial.println("ERROR :: WS :: Connection failed");
   }
  
   // Create WebSocket handshake
   webSocketClient.path = path;
   webSocketClient.host = host;
   if (webSocketClient.handshake(client)) {
-    Serial.println("INFO :: WebSocket :: Handshake successful");
+    Serial.println("INFO :: WS :: Handshake successful");
   } else {
-    Serial.println("INFO :: WebSocket :: Handshake failed");
+    Serial.println("INFO :: WS :: Handshake failed");
+  }
+
+  if (debug) {
+    Serial.printf("DEBUG :: XOR key :: key = %s\n", xor_key);
   }
  
 }
  
 void loop() {
-  String data;
+  String input;
  
   if (client.connected()) {
     // Sending alive signal
     webSocketClient.sendData("OK");
  
-    webSocketClient.getData(data);
-    if (data.length() > 0) {
-      Serial.printf("INFO :: WebSocket :: Received data: %s\n", data);
+    webSocketClient.getData(input);
+    if (input.length() > 0) {
+      String data = xorData(input);
+      if (debug) {
+        Serial.printf("DEBUG :: WS :: Received data: %s\n", input);
+        Serial.printf("DEBUG :: WS :: Decoded data: %s\n", data);
+      }
       lampController(data);
     }
  
   } else {
-    Serial.println("ERROR :: WebSocket :: Client disconnected");
+    Serial.println("ERROR :: WS :: Client disconnected");
   }
  
   // Decrease at release

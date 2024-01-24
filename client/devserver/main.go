@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/hex"
 	"log/slog"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,7 +17,21 @@ var upgrader = websocket.Upgrader{
 }
 
 var d = "11001010"
-var xorKey = []byte{0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00}
+
+var xorKey = func() []byte {
+	keyString := os.Getenv("XOR_KEY")
+	if keyString == "" {
+		slog.Error("Environment variable not set", slog.String("env", "XOR_KEY"))
+		os.Exit(1)
+	}
+
+	key, err := hex.DecodeString(keyString)
+	if err != nil {
+		slog.Error("Can't decode XOR key", slog.Any("error", err))
+	}
+
+	return key
+}()
 
 func xorData(input string) string {
 	if len(input) != len(xorKey) {
@@ -38,19 +55,27 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	slog.Info("Controller connected")
+
 	// SENDING DATA
 	for {
-		//messageType, msg, err := conn.ReadMessage()
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			slog.Error("Error read message", slog.Any("error", err))
-			return
+			if strings.Contains(err.Error(), "connection reset by peer") {
+				slog.Warn("Controller disconnected")
+				return
+			} else if strings.Contains(err.Error(), "connection timed out") {
+				slog.Warn("Controloller timeouted")
+				return
+			} else {
+				slog.Error("Error read message", slog.Any("error", err))
+				return
+			}
 		}
 		if string(msg) != "OK" {
 			slog.Info("Received message from client", slog.String("client", conn.RemoteAddr().String()),
 				slog.String("message", string(msg)))
 		}
-		// Else do something if the controller won't response for 5 sec
 
 		// Send the XORed data
 		if err := conn.WriteMessage(websocket.TextMessage, []byte(xorData(d))); err != nil {
@@ -63,9 +88,6 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 func main() {
 	slog.Info("DEV WebSocket server")
 	slog.Info("Test connection on ws://127.0.0.1:8087/smart-home")
-	slog.Info("Test data", slog.String("data", d))
-	slog.Info("XOR secret key", slog.String("key", string(xorKey)))
-	slog.Info("XORed data", slog.String("xor_data", xorData(d)))
 
 	http.HandleFunc("/smart-home", handleClient)
 	if err := http.ListenAndServe(":8087", nil); err != nil {
