@@ -28,6 +28,7 @@ int debug = 1; // Later make this a bool env
 
 char path[] = "/smart-home";
 char host[] = "192.168.43.86"; // dev server
+int port = 8089;
  
 WebSocketClient webSocketClient;
 WiFiClient client;
@@ -85,7 +86,7 @@ void setup() {
  
   // Connect to WebSocket
   delay(5000);
-  if (client.connect(host, 8088)) {
+  if (client.connect(host, port)) {
     Serial.println("INFO :: WS :: Connected");
   } else {
     Serial.println("ERROR :: WS :: Connection failed");
