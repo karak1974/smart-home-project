@@ -23,6 +23,14 @@ func GetPort() string {
 	return port
 }
 
+func GetWSPort() string {
+	var port = os.Getenv("WS_PORT")
+	if port == "" {
+		port = "8089"
+	}
+	return port
+}
+
 func GetMaxTry() int {
 	var mt, err = strconv.Atoi(os.Getenv("MAX_TRY"))
 	if err != nil || mt == 0 {

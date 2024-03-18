@@ -15,9 +15,6 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-// State of leds in binary
-var states = "01000000"
-
 // AddRecordHandler handler for /addRecord POST request
 func AddRecordHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Got AddRecord POST request")
@@ -117,6 +114,26 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// FileServer serve a static file server based on the given folder
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
+	}
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
+}
+
 // HandleClients handler for the /smart-home WS connections
 func HandleClient(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Controller tries to connect")
@@ -144,9 +161,15 @@ func HandleClient(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		if string(msg) != "OK" {
+		if string(msg) != "OK\n" {
 			slog.Info("Received message from client", slog.String("client", conn.RemoteAddr().String()),
 				slog.String("message", string(msg)))
+		}
+
+		states, err := db.GetStates()
+		if err != nil {
+			slog.Error("Error getting lamp states from database", slog.Any("error", err))
+			return
 		}
 
 		// Send the XORed data

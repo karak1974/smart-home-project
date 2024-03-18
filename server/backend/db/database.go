@@ -109,6 +109,43 @@ func GetDistinctLamp() ([]types.Lamp, error) {
 	return res, nil
 }
 
+func GetStates() (string, error) {
+	db, err := getDB()
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	lampArray, err := db.Query("SELECT state FROM ( SELECT id, lamp, date, state, ROW_NUMBER() OVER (PARTITION BY lamp ORDER BY date DESC) AS rn FROM event_logs ) AS subquery WHERE rn = 1;")
+	if err != nil {
+		return "", err
+	}
+	defer lampArray.Close()
+
+	var res []bool
+	for lampArray.Next() {
+		var tmp bool
+		var state bool
+		err = lampArray.Scan(&state)
+		if err != nil {
+			return "", err
+		}
+		tmp = state
+		res = append(res, tmp)
+	}
+
+	var states string
+	for _, state := range res {
+		if state {
+			states += "1"
+		} else {
+			states += "0"
+		}
+	}
+
+	return states, nil
+}
+
 // IsLampExist return tru if lamp exits in the database
 func IsLampExist(lampName string) (bool, error) {
 	db, err := getDB()

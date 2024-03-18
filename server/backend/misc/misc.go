@@ -5,11 +5,8 @@ import (
 	"backend/types"
 	"encoding/hex"
 	"log/slog"
-	"net/http"
 	"os"
 	"strings"
-
-	"github.com/go-chi/chi"
 )
 
 var xorKey = func() []byte {
@@ -28,38 +25,16 @@ var xorKey = func() []byte {
 }()
 
 // XorData takes an input string and XOR it with a key
-func XorData(input string) string {
+func XorData(input string) (output string) {
 	if len(input) != len(xorKey) {
 		return ""
 	}
 
-	result := make([]byte, len(input))
-
-	for i := range input {
-		result[i] = input[i] ^ xorKey[i]
+	for i := 0; i < len(input); i++ {
+		output += string(input[i] ^ xorKey[i%len(xorKey)])
 	}
 
-	return string(result)
-}
-
-// FileServer serve a static file server based on the given folder
-func FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit any URL parameters.")
-	}
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
-		fs.ServeHTTP(w, r)
-	})
+	return output
 }
 
 // SetupLamps read ROOMS system environment and assign one lamp to it
