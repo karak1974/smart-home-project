@@ -57,7 +57,7 @@ func main() {
 	r.Get("/api/getLamps", router.GetLamps)
 	r.Get("/api/hc", router.HealthCheckHandler)
 	// WS
-	http.HandleFunc("/smart-home", router.HandleClient)
+	r.Get("/smart-home", router.HandleClient)
 	// Frontend
 	misc.FileServer(r, "/", http.Dir("./frontend"))
 

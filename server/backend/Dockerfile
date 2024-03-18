@@ -1,4 +1,4 @@
-FROM golang:1.21.0-alpine3.18 as build
+FROM golang:1.22-alpine3.19 as build
 RUN apk add --no-cache gcc libc-dev ca-certificates && update-ca-certificates
 WORKDIR /app
 

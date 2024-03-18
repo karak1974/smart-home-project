@@ -117,8 +117,7 @@ void loop() {
     if (input.length() > 0) {
       String data = xorData(input);
       if (debug) {
-        Serial.printf("DEBUG :: WS :: Received data: %s\n", input);
-        Serial.printf("DEBUG :: WS :: Decoded data: %s\n", data);
+        Serial.printf("DEBUG :: WS :: Received: %s Decoded: %s\n", input, data);
       }
       lampController(data);
     }

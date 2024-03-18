@@ -87,10 +87,10 @@ func handleClient(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	slog.Info("DEV WebSocket server")
-	slog.Info("Test connection on ws://127.0.0.1:8087/smart-home")
+	slog.Info("Test connection on ws://127.0.0.1:8088/smart-home")
 
 	http.HandleFunc("/smart-home", handleClient)
-	if err := http.ListenAndServe(":8087", nil); err != nil {
+	if err := http.ListenAndServe(":8088", nil); err != nil {
 		slog.Error("Error serving WebSocket port", slog.Int("port", 8087))
 	}
 }
